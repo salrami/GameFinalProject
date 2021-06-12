@@ -305,7 +305,34 @@ public class GameProjectFinal {
                 xStart--;
             }
 
-           
+            //check Northeast
+            yStart = cr;
+            yStart--;
+            xStart = cc;
+            xStart++;
+            while(yStart>0 && xStart<grid.length){
+
+                if(grid[yStart][xStart].equals(c)){
+
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                yStart--;
+                xStart++;
+            }
+
+            return false;
+        }
+
+    
+            
+        
+
+    }
 
     
 
