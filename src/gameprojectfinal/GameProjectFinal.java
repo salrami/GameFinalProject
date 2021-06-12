@@ -19,7 +19,7 @@ public class GameProjectFinal {
         frame.setSize(700, 400);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setPreferredSize(frame.getSize());
-        frame.add(new MultiDraw(frame.getSize()));
+        frame.add(new gridDraw(frame.getSize()));
         frame.pack();
         frame.setVisible(true);
     }
@@ -27,33 +27,34 @@ public class GameProjectFinal {
         new GameProjectFinal();
     }
     
-    public static class MultiDraw extends JPanel  implements MouseListener {
+    public static class gridDraw extends JPanel  implements MouseListener {
         int startColumn = 10;
         int startRow = 10;
         int cellWidth = 40;
         int turn = 2;
         int rows = 6;
-        int columns = 7;
+        int columnumns = 7;
         boolean winner=false;
-        String ccolor = "";
+        String ccolumnor = "";
         
-        Color[][] grid = new Color[rows][columns];
+        Color[][] grid = new Color[rows][columnumns];
         
-        public MultiDraw(Dimension dimension) {
-            setSize(dimension);
-            setPreferredSize(dimension);
+        public gridDraw(Dimension dimensions) {
+            setSize(dimensions);
+            setPreferredSize(dimensions);
             addMouseListener(this);
             
             int x = 0;
             for (int row = 0; row < grid.length; row++) {
-                for (int col = 0; col < grid[0].length; col++) {
-                    grid[row][col] = new Color(255,255,255);
+                for (int column = 0; column < grid[0].length; column++) {
+                    grid[row][column] = new Color(255,255,255);
                    
                 }
             
             }
+        }
             
-        public void drawBoard(Graphics g) {
+        public void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D)g;
             Dimension d = getSize();
             g2.setColor(new Color(0, 0, 0));
@@ -63,18 +64,21 @@ public class GameProjectFinal {
 
             //2) draw grid here
             for (int row = 0; row < grid.length; row++) {
-                for (int col = 0; col < grid[0].length; col++) {
-                    g2.setColor(grid[row][col]);
+                for (int column = 0; column < grid[0].length; column++) {
+                    g2.setColor(grid[row][column]);
                     g2.fillOval(startColumn, startRow, cellWidth, cellWidth);
                     startColumn += cellWidth;
                   
                 }
-                
+            
+        
+            
                 startColumn = 0;
                 startRow += cellWidth;
 
                
             }
+        
 
             g2.setColor(new Color(255, 255, 255));
             if(winner==false){
@@ -84,38 +88,227 @@ public class GameProjectFinal {
                     g2.drawString("Yellow Turn",400,20);
                 
             } else {
-                g2.drawString("WINNER - "+ ccolor,450,20);
+                g2.drawString("WINNER - "+ ccolumnor,450,20);
                 
                     
                     }
         }
 
-        @Override
+        
         public void mouseClicked(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            
         }
 
-        @Override
+        
         public void mousePressed(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+             int x = e.getX();
+            int y = e.getY();
+            if(winner==false){
+                int xSpot = x/cellWidth;
+                int ySpot = y/cellWidth;
+                ySpot = dropP(xSpot);
+            
+                if (ySpot < 0) {
+                    System.out.println("not a valid entry");
+                
+                } else {
+                
+            
+            
+            
+            if (turn %2==0) {
+                grid[ySpot][xSpot] = new Color(255,0,0);
+                
+            } else {
+                grid[ySpot][xSpot] = new Color(255,255,0);
+            }
+            turn++;
+            if(checkForWinner(xSpot,ySpot, grid[ySpot][xSpot])){
+                winner=true;
+            }
+        }
+            repaint();
+        }
+        }
+        
+            public int dropP(int cc){
+            int cr = grid.length-1;
+
+            while(cr>=0){ 
+
+                if(grid[cr][cc].equals(Color.white)){
+                    return cr;
+                }
+                cr--;
+            }
+
+            return -1;
+
+        
         }
 
-        @Override
+        
         public void mouseReleased(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            
         }
 
-        @Override
+        
         public void mouseEntered(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+           
         }
 
-        @Override
+        
         public void mouseExited(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+            reset();
         }
+        
+        public void reset(){
+            winner=false;
+            turn=2;
+            for (int row = 0; row < grid.length; row++) {
+                for (int column = 0; column < grid[0].length; column++) {
+                    grid[row][column] = Color.white; 
+                }
+            }
+        }
+    
+    public boolean checkForWinner(int cc,int cr, Color c){
+            //search west and east
+            int xStart = cc;
+            int count = 1;
+            //check west
+            xStart--;
+            while(xStart>=0){
+                if(grid[cr][xStart].equals(c)){
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
 
-    }
+                xStart--;
+            }
+
+            //check east
+            xStart = cc;
+            xStart++;
+            while(xStart<grid[0].length){
+
+                if(grid[cr][xStart].equals(c)){
+
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                xStart++;
+            }
+
+
+            //check North
+            count = 1;
+            int yStart = cr;
+            yStart--;
+            while(yStart>0){
+                if(grid[yStart][cc].equals(c)){
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                yStart--;
+            }
+
+            //check east
+            yStart = cr;
+            yStart++;
+            while(yStart<grid.length){
+
+                if(grid[yStart][cc].equals(c)){
+
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                yStart++;
+            }
+            /*
+             * More Searches
+             */
+
+            //check NorthWest
+            count = 1;
+            yStart = cr;
+            xStart = cc;
+            xStart--;
+            yStart--;
+            while(yStart>0 && xStart>0){
+                if(grid[yStart][xStart].equals(c)){
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                yStart--;
+                xStart--;
+            }
+
+            yStart = cr;
+            yStart++;
+            xStart = cc;
+            xStart++;
+            while(yStart<grid.length && xStart<grid.length){
+
+                if(grid[yStart][xStart].equals(c)){
+
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                yStart++;
+                xStart++;
+            }
+
+            /*
+             * More Searches
+             */
+
+            //check southWest
+            count = 1;
+            yStart = cr;
+            xStart = cc;
+            xStart--;
+            yStart++;
+            while(yStart<grid.length && xStart>0){
+                if(grid[yStart][xStart].equals(c)){
+                    count++;
+                }else{
+                    break;
+                }
+                if(count==4)
+                    return true;
+
+                yStart++;
+                xStart--;
+            }
+
+           
+
+    
+
 
 }
     
